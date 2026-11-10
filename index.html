@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskPink - To-Do List & Kanban Board Modern</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Google Fonts - Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- External Stylesheet Terpisah -->
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            pinksoft: {
+              50: '#fff1f2', 100: '#ffe4e6', 200: '#fbcfe8', 300: '#f9a8d4',
+              400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d',
+              800: '#9d174d', 900: '#831843'
+            },
+            greysoft: {
+              50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1',
+              400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155',
+              800: '#1e293b', 900: '#0b1120'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-greysoft-50 dark:bg-greysoft-900 text-greysoft-800 dark:text-greysoft-100 min-h-screen flex flex-col selection:bg-pinksoft-400 selection:text-white">
+
+  <!-- HEADER NAVBAR -->
+  <header class="sticky top-0 z-40 w-full glass-nav border-b border-pinksoft-200/60 dark:border-greysoft-800 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-8">
+        <a href="#" class="flex items-center gap-2.5 group">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-pinksoft-400 to-pinksoft-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-pinksoft-400/30 group-hover:scale-105 transition-transform">
+            <i class="fa-solid fa-check-double"></i>
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-greysoft-800 dark:text-white">
+            To Do<span class="text-pinksoft-600 dark:text-pinksoft-400">List</span>
+          </span>
+        </a>
+        <nav class="hidden md:flex items-center gap-6 text-xs sm:text-sm font-bold text-greysoft-600 dark:text-greysoft-300">
+          <a href="#hero-section" class="hover:text-pinksoft-600 dark:hover:text-pinksoft-400">Home</a>
+          <a href="#kanban-section" class="text-pinksoft-600 dark:text-pinksoft-400">Kanban Board</a>
+          <a href="#" onclick="openAnalyticsModal()" class="hover:text-pinksoft-600 dark:hover:text-pinksoft-400">Statistik</a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" type="button" aria-label="Ubah Mode Gelap/Terang" class="p-2.5 rounded-2xl bg-white dark:bg-greysoft-800 text-greysoft-600 dark:text-greysoft-200 border border-pinksoft-200 dark:border-greysoft-700 shadow-sm">
+          <i id="theme-toggle-dark-icon" class="fa-solid fa-moon text-base"></i>
+          <i id="theme-toggle-light-icon" class="fa-solid fa-sun text-base text-amber-400 hidden"></i>
+        </button>
+        <div class="hidden sm:flex items-center gap-2">
+          <button class="px-4 py-2 text-xs sm:text-sm font-bold text-greysoft-700 dark:text-greysoft-200">LOG IN</button>
+          <button class="px-5 py-2 text-xs sm:text-sm font-extrabold btn-3d-pink text-white rounded-2xl">SIGN UP</button>
+        </div>
+        <button onclick="toggleMobileNav()" class="md:hidden p-2 text-greysoft-700 dark:text-greysoft-200">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section id="hero-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 w-full">
+    <div class="hero-pink-card timbul-hero-card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-greysoft-800/80 text-pinksoft-700 dark:text-pinksoft-300 font-extrabold text-xs shadow-sm border border-pinksoft-300/50">
+            <span class="w-2.5 h-2.5 rounded-full bg-pinksoft-500 animate-ping"></span>
+            Aplikasi To-Do List & Kanban Board Modern
+          </div>
+          
+          <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-greysoft-900 dark:text-white leading-tight">
+            TO-DO LIST & <br class="hidden sm:inline"/><span class="text-pinksoft-600 dark:text-pinksoft-400">KANBAN BOARD</span>
+          </h1>
+          
+          <p class="text-sm sm:text-base text-greysoft-600 dark:text-greysoft-300 max-w-xl leading-relaxed font-medium">
+            Kelola alur kerja harian secara efisien dengan sistem drag & drop intuitif. Catat rencana, pantau proses, dan selesaikan tugas tepat waktu.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-1">
+            <button onclick="openCreateTaskModal()" class="px-6 py-3.5 btn-3d-pink text-white font-extrabold rounded-2xl text-sm flex items-center gap-2">
+              <i class="fa-solid fa-circle-plus"></i> Order Now / Tambah Tugas
+            </button>
+            <a href="#kanban-section" class="px-6 py-3.5 btn-3d-dark text-white font-extrabold rounded-2xl text-sm flex items-center gap-2">
+              <i class="fa-solid fa-layer-group"></i> Learn More / Papan Kanban
+            </a>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-pinksoft-300/40 dark:border-greysoft-800 text-xs font-bold text-greysoft-600 dark:text-greysoft-300">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-pinksoft-200 dark:bg-pinksoft-900/60 text-pinksoft-600 dark:text-pinksoft-300 flex items-center justify-center">
+                <i class="fa-solid fa-list-check"></i>
+              </div>
+              <span id="stat-total">Total: 0 Tugas</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center">
+                <i class="fa-solid fa-spinner"></i>
+              </div>
+              <span id="stat-progress">Proses: 0</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <span id="stat-done">Selesai: 0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-4 items-center justify-center">
+          <div class="w-full timbul-clock-box rounded-[28px] p-5 sm:p-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="analog-clock flex-shrink-0">
+                <div id="clock-hour" class="clock-hand hand-hour"></div>
+                <div id="clock-minute" class="clock-hand hand-minute"></div>
+                <div id="clock-second" class="clock-hand hand-second"></div>
+                <div class="clock-center"></div>
+              </div>
+              <div>
+                <h4 class="text-[11px] font-extrabold text-pinksoft-600 dark:text-pinksoft-400 uppercase">WAKTU REAL-TIME</h4>
+                <p id="live-time-digital" class="text-base sm:text-xl font-black text-greysoft-800 dark:text-greysoft-100">00:00:00 WIB</p>
+                <span class="text-[11px] text-greysoft-500 font-semibold"><i class="fa-regular fa-clock"></i> Berdetak Langsung</span>
+              </div>
+            </div>
+            <div class="hidden sm:block w-12 h-16 shrink-0">
+              <svg viewBox="0 0 64 80" fill="none" class="w-full h-full drop-shadow">
+                <path d="M18 45L22 75H42L46 45H18Z" fill="#f472b6"/>
+                <path d="M16 40H48V45H16V40Z" fill="#db2777" rx="2"/>
+                <path d="M32 40C32 25 15 20 15 20C15 20 22 35 32 40Z" fill="#10b981"/>
+                <path d="M32 40C32 20 48 15 48 15C48 15 42 32 32 40Z" fill="#059669"/>
+                <path d="M32 40C32 10 32 5 32 5C32 5 38 25 32 40Z" fill="#34d399"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="w-full timbul-calendar-box rounded-[28px] p-5 sm:p-6 relative">
+            <div class="flex justify-center gap-6 mb-2 -mt-9">
+              <div class="binder-ring-3d"></div>
+              <div class="binder-ring-3d"></div>
+              <div class="binder-ring-3d"></div>
+              <div class="binder-ring-3d"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-3">
+              <h3 id="current-month-year" class="text-xs sm:text-sm font-black uppercase">NOVEMBER 2026</h3>
+              <span class="px-2.5 py-1 bg-pinksoft-600 text-white text-[10px] font-black rounded-lg">TANGGAL HARI INI</span>
+            </div>
+
+            <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-extrabold text-greysoft-400 mb-1">
+              <span>M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-greysoft-700 dark:text-greysoft-300"></div>
+
+            <div class="mt-4 pt-3 border-t border-pinksoft-100 dark:border-greysoft-800">
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-greysoft-500">Progress Tugas Selesai</span>
+                <span id="hero-progress-text" class="text-pinksoft-600 dark:text-pinksoft-400 font-extrabold">0%</span>
+              </div>
+              <div class="w-full h-2.5 bg-pinksoft-100 dark:bg-greysoft-800 rounded-full overflow-hidden">
+                <div id="hero-progress-bar" class="h-full bg-gradient-to-r from-pinksoft-400 to-emerald-500 rounded-full transition-all duration-500 w-0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLBAR -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 w-full">
+    <div class="bg-white dark:bg-greysoft-900 rounded-2xl p-3.5 border border-pinksoft-200 dark:border-greysoft-800 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-3 flex-1">
+        <div class="relative flex-1 min-w-[220px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-pinksoft-400 text-xs"></i>
+          <input type="text" id="kanban-search" placeholder="Cari tugas..." class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-pinksoft-400 font-semibold" />
+        </div>
+
+        <select id="filter-priority" class="px-3 py-2 text-xs sm:text-sm bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl font-bold cursor-pointer">
+          <option value="all">Semua Prioritas</option>
+          <option value="high">🚨 Urgent</option>
+          <option value="medium">⚡ Sedang</option>
+          <option value="low">🌱 Rendah</option>
+        </select>
+
+        <select id="filter-category" class="px-3 py-2 text-xs sm:text-sm bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl font-bold cursor-pointer">
+          <option value="all">Semua Kategori</option>
+          <option value="Belajar">📚 Belajar</option>
+          <option value="Pekerjaan">💼 Pekerjaan</option>
+          <option value="Pribadi">🏠 Pribadi</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openCreateTaskModal()" class="px-4 py-2 btn-3d-pink text-white font-extrabold rounded-xl text-xs sm:text-sm flex items-center gap-1.5 shrink-0">
+          <i class="fa-solid fa-plus text-xs"></i> Tambah Tugas
+        </button>
+        <button onclick="addNewColumnPrompt()" class="px-3.5 py-2 bg-greysoft-100 dark:bg-greysoft-800 text-greysoft-700 dark:text-greysoft-200 font-bold rounded-xl text-xs sm:text-sm border border-pinksoft-200 dark:border-greysoft-700 flex items-center gap-1.5 shrink-0">
+          <i class="fa-solid fa-folder-plus text-xs"></i> Tambah Kolom
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- KANBAN BOARD CONTAINER -->
+  <main id="kanban-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex-grow w-full">
+    <div id="board-container" class="flex gap-5 overflow-x-auto pb-8 pt-2 items-start min-h-[500px]"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-pinksoft-200 dark:border-greysoft-800 py-6 bg-white dark:bg-greysoft-900 text-xs text-greysoft-500 dark:text-greysoft-400 mt-6">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+      <div>
+        <span class="font-extrabold text-greysoft-800 dark:text-greysoft-200">TaskPink Kanban System</span> &copy; 2026 - Soft Pink & Grey Aesthetic To-Do List.
+      </div>
+      <div class="flex items-center gap-4 font-bold">
+        <button onclick="openAnalyticsModal()" class="hover:text-pinksoft-600">Statistik</button>
+        <button onclick="promptResetData()" class="text-rose-500 hover:underline">Reset Papan Data</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL DIALOGS -->
+  <div id="custom-confirm-modal" class="fixed inset-0 z-50 hidden bg-greysoft-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-greysoft-900 rounded-3xl w-full max-w-sm border border-pinksoft-200 dark:border-greysoft-800 shadow-2xl p-6 text-center">
+      <div class="w-12 h-12 rounded-full bg-pinksoft-100 text-pinksoft-600 dark:bg-pinksoft-950/80 flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="confirm-modal-title" class="text-base font-black text-greysoft-900 dark:text-white mb-1">Konfirmasi</h3>
+      <p id="confirm-modal-message" class="text-xs text-greysoft-600 dark:text-greysoft-300 mb-5 font-medium">Apakah Anda yakin?</p>
+      <div class="flex items-center justify-center gap-3">
+        <button id="confirm-modal-cancel-btn" class="w-1/2 py-2.5 border border-greysoft-300 dark:border-greysoft-700 rounded-xl text-xs font-extrabold text-greysoft-600 dark:text-greysoft-400">Batal</button>
+        <button id="confirm-modal-action-btn" class="w-1/2 py-2.5 bg-pinksoft-600 text-white rounded-xl text-xs font-extrabold shadow-md">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="task-modal" class="fixed inset-0 z-50 hidden bg-greysoft-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-greysoft-900 rounded-3xl w-full max-w-lg border border-pinksoft-200 dark:border-greysoft-800 shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-pinksoft-100 dark:border-greysoft-800 flex justify-between items-center bg-pinksoft-50/50 dark:bg-greysoft-800/50">
+        <h3 id="modal-task-title" class="text-base font-black text-greysoft-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-pinksoft-600"></i> Tambah Tugas Baru
+        </h3>
+        <button onclick="closeTaskModal()" class="w-8 h-8 rounded-full hover:bg-pinksoft-100 dark:hover:bg-greysoft-800 flex items-center justify-center text-greysoft-400">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="task-form" onsubmit="saveTaskForm(event)" class="p-6 space-y-4">
+        <input type="hidden" id="form-task-id" value="">
+        <div>
+          <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Judul Tugas <span class="text-pinksoft-600">*</span></label>
+          <input type="text" id="form-title" required placeholder="Contoh: Menyelesaikan tugas Matematika" class="w-full px-3.5 py-2.5 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-pinksoft-400">
+        </div>
+        <div>
+          <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Deskripsi Detail</label>
+          <textarea id="form-description" rows="3" placeholder="Rincian pengerjaan..." class="w-full px-3.5 py-2.5 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-pinksoft-400"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Prioritas</label>
+            <select id="form-priority" class="w-full px-3 py-2 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-bold focus:outline-none">
+              <option value="high">🚨 Urgent</option>
+              <option value="medium" selected>⚡ Sedang</option>
+              <option value="low">🌱 Rendah</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Status Kolom</label>
+            <select id="form-column-id" class="w-full px-3 py-2 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-bold focus:outline-none"></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Kategori</label>
+            <select id="form-category" class="w-full px-3 py-2 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-bold focus:outline-none">
+              <option value="Belajar">📚 Belajar</option>
+              <option value="Pekerjaan">💼 Pekerjaan</option>
+              <option value="Pribadi">🏠 Pribadi</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-extrabold text-greysoft-700 dark:text-greysoft-300 mb-1">Tenggat Waktu</label>
+            <input type="date" id="form-due-date" class="w-full px-3 py-2 bg-greysoft-50 dark:bg-greysoft-800 border border-pinksoft-200 dark:border-greysoft-700 rounded-xl text-sm font-semibold focus:outline-none">
+          </div>
+        </div>
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-pinksoft-100 dark:border-greysoft-800">
+          <button type="button" onclick="closeTaskModal()" class="px-4 py-2 border border-greysoft-300 dark:border-greysoft-700 rounded-xl text-xs font-extrabold text-greysoft-600 dark:text-greysoft-400">Batal</button>
+          <button type="submit" class="px-5 py-2 btn-3d-pink text-white rounded-xl text-xs font-extrabold">Simpan Kartu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="analytics-modal" class="fixed inset-0 z-50 hidden bg-greysoft-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-greysoft-900 rounded-3xl w-full max-w-md border border-pinksoft-200 dark:border-greysoft-800 shadow-2xl p-6">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b border-pinksoft-100 dark:border-greysoft-800">
+        <h3 class="font-black text-base text-greysoft-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-pinksoft-600"></i> Statistik Produktivitas
+        </h3>
+        <button onclick="closeAnalyticsModal()" class="text-greysoft-400 hover:text-greysoft-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-4 text-xs font-semibold">
+        <div class="bg-pinksoft-50 dark:bg-greysoft-800 p-4 rounded-2xl border border-pinksoft-200 dark:border-greysoft-700">
+          <div class="flex justify-between font-extrabold mb-1">
+            <span>Rasio Penyelesaian Tugas</span>
+            <span id="modal-analytics-rate" class="text-pinksoft-600">0%</span>
+          </div>
+          <div class="w-full bg-greysoft-200 dark:bg-greysoft-700 h-2.5 rounded-full overflow-hidden">
+            <div id="modal-analytics-bar" class="bg-pinksoft-600 h-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- External JavaScript File Terpisah -->
+  <script src="script.js"></script>
+</body>
+</html>
