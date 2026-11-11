@@ -1,0 +1,9 @@
+# Abaikan folder vendor dan file rahasia Laravel backend
+taskpink-backend/vendor/
+taskpink-backend/.env
+taskpink-backend/storage/*.key
+
+# Abaikan file sistem / editor
+node_modules/
+.DS_Store
+.vscode/

@@ -1,43 +1,104 @@
 /* ==================== TASKPINK APPLICATION LOGIC ==================== */
 
+const API_URL = 'http://127.0.0.1:8000/api/tasks';
+
+// 1. Memuat Tugas dari API Backend Laravel & MySQL
+async function loadTasksFromAPI() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        // Format ulang nama kolom (snake_case database -> camelCase frontend)
+        state.tasks = data.map(task => ({
+            id: task.id,
+            columnId: task.column_id,
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            category: task.category,
+            dueDate: task.due_date,
+            subtasks: []
+        }));
+
+        renderBoard();
+        updateStats();
+    } catch (error) {
+        console.error('Gagal memuat tugas dari server:', error);
+    }
+}
+
+// 2. Hapus Tugas dari Backend (DELETE)
+async function deleteTaskFromBackend(taskId) {
+    try {
+        await fetch(`${API_URL}/${taskId}`, {
+            method: 'DELETE'
+        });
+        await loadTasksFromAPI();
+    } catch (error) {
+        console.error('Gagal menghapus tugas:', error);
+    }
+}
+
+// 3. Simpan Tugas Baru ke Backend (POST)
+async function saveTaskToBackend(taskData) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                column_id: taskData.columnId || 'col-rencana',
+                title: taskData.title,
+                description: taskData.description,
+                priority: taskData.priority,
+                category: taskData.category,
+                due_date: taskData.dueDate
+            })
+        });
+
+        if (response.ok) {
+            await loadTasksFromAPI();
+        }
+    } catch (error) {
+        console.error('Gagal menyimpan tugas:', error);
+    }
+}
+
+// 4. Update Tugas / Pindah Kolom ke Backend (PUT)
+async function updateTaskInBackend(taskId, updatedFields) {
+    try {
+        const payload = {};
+        if (updatedFields.columnId) payload.column_id = updatedFields.columnId;
+        if (updatedFields.title) payload.title = updatedFields.title;
+        if (updatedFields.description !== undefined) payload.description = updatedFields.description;
+        if (updatedFields.priority) payload.priority = updatedFields.priority;
+        if (updatedFields.category) payload.category = updatedFields.category;
+        if (updatedFields.dueDate !== undefined) payload.due_date = updatedFields.dueDate;
+
+        await fetch(`${API_URL}/${taskId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        await loadTasksFromAPI();
+    } catch (error) {
+        console.error('Gagal memperbarui tugas:', error);
+    }
+}
+
 const DEFAULT_STATE = {
   columns: [
     { id: 'col-rencana', title: 'Rencana', icon: 'fa-folder-open', iconBg: 'bg-pink-100 text-pink-600' },
     { id: 'col-proses', title: 'Proses', icon: 'fa-folder', iconBg: 'bg-pink-100 text-pink-600' },
     { id: 'col-done', title: 'Selesai (Done)', icon: 'fa-circle-check', iconBg: 'bg-pink-100 text-pink-600' }
   ],
-  tasks: [
-    {
-      id: 'task-1',
-      columnId: 'col-done',
-      title: 'Sejarah',
-      description: 'Membuat Bookcreator',
-      priority: 'medium',
-      category: 'Belajar',
-      dueDate: '2026-11-10',
-      subtasks: [{ text: 'Kerjakan Bab 1', completed: true }]
-    },
-    {
-      id: 'task-2',
-      columnId: 'col-proses',
-      title: 'Bahasa Inggris',
-      description: 'Dialog Lamar Pekerjaan',
-      priority: 'medium',
-      category: 'Belajar',
-      dueDate: '2026-11-20',
-      subtasks: []
-    },
-    {
-      id: 'task-3',
-      columnId: 'col-proses',
-      title: 'Matematika',
-      description: 'Membuat data statistika',
-      priority: 'medium',
-      category: 'Belajar',
-      dueDate: '2026-12-17',
-      subtasks: []
-    }
-  ]
+  tasks: []
 };
 
 let state = loadState();
@@ -59,12 +120,12 @@ function saveState() {
 }
 
 function initApp() {
-  initTheme();
-  renderBoard();
-  renderCalendar();
-  startClock();
-  setupEventListeners();
-  updateStats();
+    initTheme();
+    loadTasksFromAPI();
+    renderCalendar();
+    startClock();
+    setupEventListeners();
+    updateStats();
 }
 
 function initTheme() {
@@ -139,7 +200,6 @@ function renderCalendar() {
   for (let i = 0; i < firstDay; i++) {
     grid.innerHTML += `<div class="p-1 opacity-20">.</div>`;
   }
-
   for (let day = 1; day <= daysInMonth; day++) {
     const isToday = day === todayDate;
     const hasTaskDone = (day % 4 === 0);
@@ -170,9 +230,13 @@ function updateStats() {
   const doneTasks = state.tasks.filter(t => t.columnId === 'col-done').length;
   const inProgress = state.tasks.filter(t => t.columnId === 'col-proses').length;
 
-  document.getElementById('stat-total').innerText = `Total: ${total} Tugas`;
-  document.getElementById('stat-progress').innerText = `Proses: ${inProgress}`;
-  document.getElementById('stat-done').innerText = `Selesai: ${doneTasks}`;
+  const totalEl = document.getElementById('stat-total');
+  const progressEl = document.getElementById('stat-progress');
+  const doneEl = document.getElementById('stat-done');
+
+  if (totalEl) totalEl.innerText = `Total: ${total} Tugas`;
+  if (progressEl) progressEl.innerText = `Proses: ${inProgress}`;
+  if (doneEl) doneEl.innerText = `Selesai: ${doneTasks}`;
 
   const percent = total > 0 ? Math.round((doneTasks / total) * 100) : 0;
   const progressBar = document.getElementById('hero-progress-bar');
@@ -203,7 +267,6 @@ function renderBoard() {
     const colEl = document.createElement('div');
     colEl.className = "kanban-column timbul-column w-80 shrink-0 rounded-3xl p-4 flex flex-col max-h-[750px]";
     colEl.dataset.colId = col.id;
-
     colEl.innerHTML = `
       <div class="flex items-center justify-between pb-3 mb-3 border-b border-pinksoft-100 dark:border-greysoft-800/60">
         <div class="flex items-center gap-2.5">
@@ -229,7 +292,6 @@ function renderBoard() {
         ${colTasks.map(t => renderTaskCard(t)).join('')}
       </div>
     `;
-
     board.appendChild(colEl);
   });
 
@@ -313,13 +375,14 @@ function setupDragAndDrop() {
   });
 }
 
-function moveTaskToColumn(taskId, targetColId) {
-  const task = state.tasks.find(t => t.id === taskId);
+async function moveTaskToColumn(taskId, targetColId) {
+  const task = state.tasks.find(t => t.id == taskId);
   if (task && task.columnId !== targetColId) {
     task.columnId = targetColId;
-    saveState();
     renderBoard();
     showToast(`Kartu dipindahkan ke kolom ${getColumnTitle(targetColId)}`, 'success');
+
+    await updateTaskInBackend(taskId, { columnId: targetColId });
 
     if (targetColId === 'col-done' && typeof confetti === 'function') {
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
@@ -355,7 +418,7 @@ function openCreateTaskModal(colId = null) {
 }
 
 function openEditTaskModal(taskId) {
-  const task = state.tasks.find(t => t.id === taskId);
+  const task = state.tasks.find(t => t.id == taskId);
   if (!task) return;
 
   document.getElementById('modal-task-title').innerText = 'Edit Kartu Tugas';
@@ -374,47 +437,31 @@ function closeTaskModal() {
   document.getElementById('task-modal').classList.add('hidden');
 }
 
-function saveTaskForm(e) {
-  e.preventDefault();
-  const id = document.getElementById('form-task-id').value;
-  const title = document.getElementById('form-title').value.trim();
-  const description = document.getElementById('form-description').value.trim();
-  const priority = document.getElementById('form-priority').value;
-  const columnId = document.getElementById('form-column-id').value;
-  const category = document.getElementById('form-category').value;
-  const dueDate = document.getElementById('form-due-date').value;
+async function saveTaskForm(e) {
+    e.preventDefault();
+    const id = document.getElementById('form-task-id').value;
+    const title = document.getElementById('form-title').value.trim();
+    const description = document.getElementById('form-description').value.trim();
+    const priority = document.getElementById('form-priority').value;
+    const columnId = document.getElementById('form-column-id').value;
+    const category = document.getElementById('form-category').value;
+    const dueDate = document.getElementById('form-due-date').value;
 
-  if (!title) return;
+    if (!title) return;
 
-  if (id) {
-    const task = state.tasks.find(t => t.id === id);
-    if (task) {
-      task.title = title;
-      task.description = description;
-      task.priority = priority;
-      task.columnId = columnId;
-      task.category = category;
-      task.dueDate = dueDate;
-      showToast('Kartu tugas berhasil diperbarui', 'success');
+    const taskData = { title, description, priority, category, dueDate, columnId };
+
+    if (id) {
+        // Mode Edit Tugas ke Backend
+        await updateTaskInBackend(id, taskData);
+        showToast('Kartu tugas berhasil diperbarui', 'success');
+    } else {
+        // Mode Tambah Tugas Baru ke Backend
+        await saveTaskToBackend(taskData);
+        showToast('Kartu tugas berhasil dibuat', 'success');
     }
-  } else {
-    const newTask = {
-      id: 'task-' + Date.now(),
-      columnId: columnId,
-      title: title,
-      description: description,
-      priority: priority,
-      category: category,
-      dueDate: dueDate || new Date().toISOString().split('T')[0],
-      subtasks: []
-    };
-    state.tasks.push(newTask);
-    showToast('Tugas baru berhasil dibuat!', 'success');
-  }
 
-  saveState();
-  renderBoard();
-  closeTaskModal();
+    closeTaskModal();
 }
 
 function addNewColumnPrompt() {
@@ -444,19 +491,17 @@ function confirmDeleteColumn(colId) {
 }
 
 function confirmDeleteTask(taskId) {
-  showConfirmModal('Hapus Tugas', 'Apakah Anda yakin ingin menghapus tugas ini?', () => {
-    state.tasks = state.tasks.filter(t => t.id !== taskId);
-    saveState();
-    renderBoard();
+  showConfirmModal('Hapus Tugas', 'Apakah Anda yakin ingin menghapus tugas ini?', async () => {
+    await deleteTaskFromBackend(taskId);
     showToast('Tugas berhasil dihapus', 'info');
   });
 }
 
 function promptResetData() {
-  showConfirmModal('Reset Papan Data', 'Apakah Anda yakin ingin memulihkan 3 kolom awal (Rencana, Dalam Proses, Selesai) dan data contoh?', () => {
+  showConfirmModal('Reset Papan Data', 'Apakah Anda yakin ingin memulihkan 3 kolom awal (Rencana, Dalam Proses, Selesai)?', () => {
     state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     saveState();
-    renderBoard();
+    loadTasksFromAPI();
     showToast('Data papan berhasil di-reset', 'info');
   });
 }
@@ -499,8 +544,10 @@ function openAnalyticsModal() {
   const done = state.tasks.filter(t => t.columnId === 'col-done').length;
   const rate = total > 0 ? Math.round((done / total) * 100) : 0;
 
-  document.getElementById('modal-analytics-rate').innerText = `${rate}%`;
-  document.getElementById('modal-analytics-bar').style.width = `${rate}%`;
+  const rateEl = document.getElementById('modal-analytics-rate');
+  const barEl = document.getElementById('modal-analytics-bar');
+  if (rateEl) rateEl.innerText = `${rate}%`;
+  if (barEl) barEl.style.width = `${rate}%`;
   document.getElementById('analytics-modal').classList.remove('hidden');
 }
 
@@ -513,6 +560,7 @@ function setupEventListeners() {
   document.getElementById('kanban-search')?.addEventListener('input', renderBoard);
   document.getElementById('filter-priority')?.addEventListener('change', renderBoard);
   document.getElementById('filter-category')?.addEventListener('change', renderBoard);
+  // Baris submit task-form dihapus dari sini agar tidak terpicu 2x
 
   document.getElementById('confirm-modal-cancel-btn')?.addEventListener('click', closeConfirmModal);
   document.getElementById('confirm-modal-action-btn')?.addEventListener('click', () => {
