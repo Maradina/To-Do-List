@@ -2,6 +2,9 @@
 
 **TaskPink** adalah aplikasi manajemen tugas berbasis papan Kanban *full-stack* modern yang responsif. Projek ini menghubungkan antarmuka interaktif dengan backend API Laravel dan database MySQL untuk mengelola tugas secara *real-time*.
 
+![TaskPink Preview](assets/preview.png)
+
+
 ---
 
 ## ✨ Fitur Utama
